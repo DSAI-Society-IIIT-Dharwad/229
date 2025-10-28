@@ -21,6 +21,14 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.get("/api/topics", (req, res) => {
+  const text = "The hummingbird, a tiny jewel of iridescent green and blue, hovered by the fuchsia blossom. Its wings were a frantic blur, a miniature engine powered by nectar, defying gravity for a moment."
+  
+  res.json({
+    data: text,
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`⚡️ Server is running on http://localhost:${PORT}`);
