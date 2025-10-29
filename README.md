@@ -1,6 +1,6 @@
-# Reddit Sentiment Analyzer 🔍
+# Sentiment Analyzer 🔍
 
-An AI-powered conversational chatbot that analyzes sentiment on Reddit for specific subreddits and topics using fine-tuned BERT models and LangChain.
+An AI-powered conversational chatbot that analyzes sentiment for specific subreddits and topics using fine-tuned BERT models and LangChain.
 
 ![Tech Stack](https://img.shields.io/badge/Next.js-16.0-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.2-blue?style=flat-square&logo=react)
@@ -13,7 +13,7 @@ An AI-powered conversational chatbot that analyzes sentiment on Reddit for speci
 
 - **🤖 AI-Powered Sentiment Analysis**: Uses fine-tuned BERT models (ELECTRA) for accurate sentiment classification
 - **💬 Conversational Interface**: Natural language chatbot powered by LangChain and Groq Mixtral-8x7b
-- **📊 Reddit Integration**: Fetches and analyzes real-time data from any subreddit using PRAW
+- **📊 Data Integration**: Fetches and analyzes real-time data from any subreddit using PRAW
 - **🎨 Modern UI**: Beautiful, responsive interface built with Next.js, React, and Tailwind CSS
 - **📈 Sentiment Breakdown**: Get positive, negative, and neutral sentiment counts with sample quotes
 - **💾 Chat History**: Persistent chat sessions with localStorage
@@ -34,7 +34,7 @@ An AI-powered conversational chatbot that analyzes sentiment on Reddit for speci
 ┌─────────────────────────────────────────────────────────────┐
 │              AI Chat Service (FastAPI + LangChain)          │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  Groq Mixtral-8x7b LLM + Reddit Sentiment Tool       │  │
+│  │  Groq Mixtral-8x7b LLM + Sentiment Analysis Tool     │  │
 │  └──────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                            │
@@ -43,8 +43,8 @@ An AI-powered conversational chatbot that analyzes sentiment on Reddit for speci
 ┌─────────────────────────────────────────────────────────────┐
 │         Sentiment Analysis API (FastAPI + BERT)             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  PRAW Reddit │→ │  Fine-tuned  │→ │  Sentiment   │     │
-│  │  Scraper     │  │  BERT Model  │  │  Results     │     │
+│  │  PRAW Data   │→ │  Fine-tuned  │→ │  Sentiment   │     │
+│  │  Scraper     │  │  ESD Model   │  │  Results     │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -181,7 +181,7 @@ Runs on `http://10.0.15.84:8001` (or configure your IP)
 ### Chat Response Format
 
 ```
-I'll use the reddit_sentiment_tool to analyze the sentiment on r/apple about the iPhone 16.
+I'll use the sentiment_tool to analyze the sentiment on r/apple about the iPhone 16.
 
 **Sentiment Analysis:**
 
