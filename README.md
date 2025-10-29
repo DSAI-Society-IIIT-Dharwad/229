@@ -9,6 +9,20 @@ An AI-powered conversational chatbot that analyzes sentiment for specific subred
 ![FastAPI](https://img.shields.io/badge/FastAPI-Latest-teal?style=flat-square&logo=fastapi)
 ![Python](https://img.shields.io/badge/Python-3.x-yellow?style=flat-square&logo=python)
 
+## 📸 Screenshots
+
+<!-- Add screenshots here -->
+![App Screenshot](assets/images/screenshot.png)
+*Main chat interface showing sentiment analysis results*
+
+<!-- You can add more screenshots like:
+![Welcome Screen](path/to/welcome-screenshot.png)
+*Welcome screen with topic cards*
+
+![Sentiment Results](path/to/results-screenshot.png)
+*Detailed sentiment breakdown with statistics*
+-->
+
 ## 🌟 Features
 
 - **🤖 AI-Powered Sentiment Analysis**: Uses fine-tuned BERT models (ELECTRA) for accurate sentiment classification
