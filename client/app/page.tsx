@@ -7,7 +7,6 @@ import WelcomeSection from "@/components/WelcomeSection";
 import ChatInput from "@/components/ChatInput";
 import TopicCards from "@/components/TopicCards";
 import ChatMessages from "@/components/ChatMessages";
-import NewChatModal from "@/components/NewChatModal";
 
 export interface Chat {
   id: string;
@@ -37,7 +36,6 @@ const Index = () => {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
 
   const api = process.env.NEXT_PUBLIC_API_URL
   // Load data from localStorage on mount
@@ -65,13 +63,14 @@ const Index = () => {
   }, []);
 
   const handleNewChat = () => {
-    setIsNewChatModalOpen(true);
-  };
+    const chatTitle = prompt("Enter a name for your new chat:");
+    if (!chatTitle || !chatTitle.trim()) {
+      return;
+    }
 
-  const handleCreateChat = (chatTitle: string) => {
     const newChat: Chat = {
       id: Date.now().toString(),
-      title: chatTitle,
+      title: chatTitle.trim(),
       preview: "Just started",
     };
     const updatedChats = [newChat, ...recentChats];
@@ -82,7 +81,6 @@ const Index = () => {
     setCurrentChatId(newChat.id);
     setMessages([]);
     localStorage.setItem(`chat_${newChat.id}`, JSON.stringify([]));
-    setIsNewChatModalOpen(false);
   };
 
   const handleSearchChats = (query: string) => {
@@ -280,13 +278,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-
-      {/* New Chat Modal */}
-      <NewChatModal
-        isOpen={isNewChatModalOpen}
-        onClose={() => setIsNewChatModalOpen(false)}
-        onSubmit={handleCreateChat}
-      />
     </div>
   );
 };
