@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EchoAI - Intra IIIT",
+  title: "Sentinel AI",
   description: "Your personal AI assistant for documents, research, and knowledge.",
 };
 

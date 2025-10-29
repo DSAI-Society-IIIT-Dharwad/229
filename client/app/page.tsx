@@ -7,6 +7,7 @@ import WelcomeSection from "@/components/WelcomeSection";
 import ChatInput from "@/components/ChatInput";
 import TopicCards from "@/components/TopicCards";
 import ChatMessages from "@/components/ChatMessages";
+import NewChatModal from "@/components/NewChatModal";
 
 export interface Chat {
   id: string;
@@ -21,12 +22,9 @@ interface Message {
   timestamp: string;
 }
 
-interface Topic {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
+interface ChatHistoryItem {
+  role: "human" | "ai";
+  content: string;
 }
 
 const Index = () => {
@@ -36,8 +34,9 @@ const Index = () => {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
+  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
 
-  const api = process.env.NEXT_PUBLIC_API_URL
   // Load data from localStorage on mount
   useEffect(() => {
     const savedChats = localStorage.getItem("recentChats");
@@ -63,11 +62,10 @@ const Index = () => {
   }, []);
 
   const handleNewChat = () => {
-    const chatTitle = prompt("Enter a name for your new chat:");
-    if (!chatTitle || !chatTitle.trim()) {
-      return;
-    }
+    setIsNewChatModalOpen(true);
+  };
 
+  const handleCreateChat = (chatTitle: string) => {
     const newChat: Chat = {
       id: Date.now().toString(),
       title: chatTitle.trim(),
@@ -77,10 +75,14 @@ const Index = () => {
     setRecentChats(updatedChats);
     localStorage.setItem("recentChats", JSON.stringify(updatedChats));
     
-    // Set as current chat and clear messages
+    // Set as current chat and clear messages and history
     setCurrentChatId(newChat.id);
     setMessages([]);
+    setChatHistory([]);
     localStorage.setItem(`chat_${newChat.id}`, JSON.stringify([]));
+    localStorage.setItem(`chat_history_${newChat.id}`, JSON.stringify([]));
+    
+    setIsNewChatModalOpen(false);
   };
 
   const handleSearchChats = (query: string) => {
@@ -106,21 +108,31 @@ const Index = () => {
     setRecentChats(updatedChats);
     localStorage.setItem("recentChats", JSON.stringify(updatedChats));
     localStorage.removeItem(`chat_${id}`);
+    localStorage.removeItem(`chat_history_${id}`);
     
     // If deleted chat was active, clear current chat
     if (currentChatId === id) {
       setCurrentChatId(null);
       setMessages([]);
+      setChatHistory([]);
     }
   };
 
   const handleSelectChat = (id: string) => {
     setCurrentChatId(id);
     const savedMessages = localStorage.getItem(`chat_${id}`);
+    const savedHistory = localStorage.getItem(`chat_history_${id}`);
+    
     if (savedMessages) {
       setMessages(JSON.parse(savedMessages));
     } else {
       setMessages([]);
+    }
+    
+    if (savedHistory) {
+      setChatHistory(JSON.parse(savedHistory));
+    } else {
+      setChatHistory([]);
     }
   };
 
@@ -152,6 +164,7 @@ const Index = () => {
 
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
+    const currentInput = chatInput;
     setChatInput("");
     setIsLoading(true);
 
@@ -161,38 +174,43 @@ const Index = () => {
     // Update chat preview
     const updatedChats = recentChats.map(chat => 
       chat.id === activeChatId 
-        ? { ...chat, preview: chatInput.substring(0, 50) }
+        ? { ...chat, preview: currentInput.substring(0, 50) }
         : chat
     );
     setRecentChats(updatedChats);
     localStorage.setItem("recentChats", JSON.stringify(updatedChats));
 
     try {
-      // Call API
-      console.log("api : " , api)
-      const response = await fetch(`${api}/api/topics`);
+      // Call AI Chat API
+      const response = await fetch("http://10.0.15.84:8001/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_input: currentInput,
+          chat_history: chatHistory,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
-      // Format AI response - handle string or array response
-      let aiResponseContent = "";
-      
-      if (typeof data.data === "string") {
-        // If it's a string, use it directly
-        aiResponseContent = data.data;
-      } else if (Array.isArray(data.data)) {
-        // If it's an array, format it
-        aiResponseContent = "Here are some topics:\n\n";
-        data.data.forEach((topic: Topic, index: number) => {
-          aiResponseContent += `${index + 1}. ${topic.title}\n${topic.description}\n\n`;
-        });
-      } else {
-        aiResponseContent = "Received response from server.";
-      }
+      // Extract AI response and new chat history
+      const aiResponseContent = data.ai_response || "Sorry, I couldn't process that request.";
+      const newChatHistory = data.new_chat_history || [];
+
+      // Update chat history state
+      setChatHistory(newChatHistory);
+      localStorage.setItem(`chat_history_${activeChatId}`, JSON.stringify(newChatHistory));
 
       // Add AI message
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: aiResponseContent.trim(),
+        content: aiResponseContent,
         sender: "ai",
         timestamp: new Date().toISOString(),
       };
@@ -201,10 +219,10 @@ const Index = () => {
       setMessages(finalMessages);
       localStorage.setItem(`chat_${activeChatId}`, JSON.stringify(finalMessages));
     } catch (error) {
-      console.error("Error fetching topics:", error);
+      console.error("Error communicating with AI:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Sorry, I couldn't fetch the information. Please try again.",
+        content: "Sorry, I couldn't connect to the AI service. Please make sure the server is running at http://10.0.15.84:8001",
         sender: "ai",
         timestamp: new Date().toISOString(),
       };
@@ -278,6 +296,13 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* New Chat Modal */}
+      <NewChatModal
+        isOpen={isNewChatModalOpen}
+        onClose={() => setIsNewChatModalOpen(false)}
+        onSubmit={handleCreateChat}
+      />
     </div>
   );
 };

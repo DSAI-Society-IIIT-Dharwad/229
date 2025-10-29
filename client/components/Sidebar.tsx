@@ -45,7 +45,7 @@ export default function Sidebar({
     >
       <div className="p-4 flex items-center gap-2">
         <div className="w-6 h-6 bg-white rounded-full"></div>
-        <h1 className="text-xl font-bold">EchoAI 1.0</h1>
+        <h1 className="text-xl font-bold">Sentinel AI</h1>
       </div>
 
       {/* New Chat Button */}
